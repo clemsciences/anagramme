@@ -1,0 +1,4 @@
+jupyter
+cltk
+matplotlib
+flask
