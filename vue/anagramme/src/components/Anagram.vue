@@ -2,39 +2,86 @@
     <v-container class="mx-6">
         <h1>Anagram solver</h1>
         <v-row>
-            <v-textarea solo name="textToDecipher" hint="Text to decipher"></v-textarea>
+            <v-textarea 
+            solo
+            v-model="textToAnalyse"
+            label="Text to decipher"
+            name="textToDecipher">
+            </v-textarea>
         </v-row>
         <v-row>
             <v-btn @click="tokenize">Tokenize</v-btn>
         </v-row>
         <v-row>
             <v-col>
-                <v-checkbox v-model="loadFromCLTK" label="Load from CLTK"></v-checkbox>
+                <v-checkbox 
+                v-model="loadFromCLTK" 
+                label="Load from CLTK">
+                </v-checkbox>
             </v-col>
             <v-col>
-                <v-checkbox v-model="loadFromUserInput" label="Load from your tokens"></v-checkbox>
+                <v-checkbox 
+                v-model="loadFromUserInput" 
+                label="Load from your tokens">
+                </v-checkbox>
             </v-col>
         </v-row>
+        <div v-if="loadFromCLTK">
+            <v-select
+                :items="items"
+                label="Available dictionaries"
+                outlined
+            ></v-select>
+        </div>
         <v-row>
-        <v-textarea solo name="lexicon" hint="Known tokens"></v-textarea>
+        <v-textarea 
+            v-if="loadFromUserInput" 
+            solo
+            v-model="wordInput"
+            label="Known tokens"
+            name="lexicon">
+            </v-textarea>
         </v-row>
-        <v-text></v-text>
+        <ul id="results">
+            <li v-for="result in results" :key="result">
+                {{ result.word }}
+            </li>
+        </ul>
         
     </v-container>
 
 </template>
 <script>
+import axios from 'axios';
 export default {
     data: () => {
         return {
             loadFromCLTK: false,
-            loadFromUserInput: false
+            loadFromUserInput: false,
+            textToAnalyse: "",
+            wordInput: "",
+            items: [],
+            results: [],
+            headers: { 'content-type': 'application/json' }
         }
     },
     methods: {
         tokenize: function() {
-
+            axios.post("http://127.0.0.1:5000/tokenize",
+                {text: this.textToAnalyse}, this.headers).then(response => {
+                if(response.data.success) {
+                    this.textToAnalyse = response.data.result;
+                }
+            });
         },
+        getAllPossibleCombinaisons: function() {
+            axios.post("http://127.0.0.1:5000/possible_wordsr",
+                {text: this.textToAnalyse}, this.headers).then(response => {
+                if(response.data.success) {
+                    this.results = response.data.result;
+                }
+            });
+        }
     },
 
 }
