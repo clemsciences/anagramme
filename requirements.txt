@@ -2,3 +2,4 @@ jupyter
 cltk
 matplotlib
 flask
+lxml

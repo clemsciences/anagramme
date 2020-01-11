@@ -1,5 +1,9 @@
 
 import itertools
+from collections import defaultdict
+from typing import List, Dict, Set
+
+__author__ = ["Clément Besnier <clem@clementbesnier.fr>", ]
 
 
 def find_possible(word: str):
@@ -21,3 +25,17 @@ def find_possible(word: str):
                 possible_words.append(possible)
 
     return possible_words
+
+
+def compute_anagrams_dictionary(words: List[str]) -> Dict[str, Set[str]]:
+    anagrams = defaultdict(set)
+    for word in words:
+        key = ''.join(sorted(word))
+        anagrams[key].add(word)
+    return anagrams
+
+
+def find_anagrams(word: str, anagram_dictionary: Dict[str, Set[str]]):
+    key = "".join(sorted(word))
+    anagrams = anagram_dictionary[key]
+    return [anagram for anagram in anagrams if word != anagram]
