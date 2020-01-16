@@ -67,9 +67,15 @@ def load_latin_library() -> Set[str]:
 
 def make_lexicon() -> bool:
     words = load_latin_library()
+    words.update(load_latin_proper_nouns())
     with codecs.open("latin_words.txt", "w", encoding="utf-8") as f:
         f.write("\n".join(words))
     return True
+
+
+def load_latin_words():
+    with codecs.open("latin_words.txt", "r", encoding="utf-8") as f:
+        return [token.strip() for token in f.readlines().split("\n")]
 
 
 if __name__ == "__main__":

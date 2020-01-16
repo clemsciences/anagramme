@@ -28,7 +28,7 @@ def load_cltk_libraries():
     return jsonify({"success": True, "result": AVAILABLE_LIBRARIES})
 
 
-@main.route("/find_anagrams", methods=["GET"])
+@main.route("/find_anagrams", methods=["POST"])
 def find_anagrams_with_data():
     data = request.get_json()
     library_choice = data["cltk_choice"]
@@ -44,13 +44,15 @@ def find_anagrams_with_data():
         tokenized_user_input = tokenize(user_input)
         loaded_data.extend(tokenized_user_input)
 
-    if library_choice == "":
+    if library_choice == "Latin proper names":
         loaded_data.extend(load_latin_proper_nouns())
-    elif library_choice == "":
+    elif library_choice == "Latin texts":
         loaded_data.extend(load_latin_library())
 
     anagram_dctionary = compute_anagrams_dictionary(loaded_data)
     result = []
     for token in tokenized_text:
-        result.append(find_anagrams(token, anagram_dctionary))
+        anagrams = find_anagrams(token, anagram_dctionary)
+        if len(anagrams) > 0:
+            result.append({"token": token, "anagrams": " ".join(anagrams)})
     return jsonify({"success": True, "result": result})
