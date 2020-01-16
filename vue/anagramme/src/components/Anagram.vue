@@ -2,7 +2,7 @@
     <v-container class="mx-6">
         <h1>Anagram solver</h1>
         <v-row>
-            <v-textarea 
+            <v-textarea
             solo
             v-model="textToAnalyse"
             label="Text to decipher"
@@ -14,14 +14,14 @@
         </v-row>
         <v-row>
             <v-col>
-                <v-checkbox 
-                v-model="loadFromCLTK" 
+                <v-checkbox
+                v-model="loadFromCLTK"
                 label="Load from CLTK">
                 </v-checkbox>
             </v-col>
             <v-col>
-                <v-checkbox 
-                v-model="loadFromUserInput" 
+                <v-checkbox
+                v-model="loadFromUserInput"
                 label="Load from your tokens">
                 </v-checkbox>
             </v-col>
@@ -34,8 +34,8 @@
             ></v-select>
         </div>
         <v-row>
-        <v-textarea 
-            v-if="loadFromUserInput" 
+        <v-textarea
+            v-if="loadFromUserInput"
             solo
             v-model="wordInput"
             label="Known tokens"
@@ -47,7 +47,7 @@
                 {{ result.word }}
             </li>
         </ul>
-        
+
     </v-container>
 
 </template>
@@ -65,8 +65,11 @@ export default {
             headers: { 'content-type': 'application/json' }
         }
     },
+    mounted() {
+        this.loadCltkLibraries();
+    },
     methods: {
-        tokenize: function() {
+        tokenize() {
             axios.post("http://127.0.0.1:5000/tokenize",
                 {text: this.textToAnalyse}, this.headers).then(response => {
                 if(response.data.success) {
@@ -74,11 +77,20 @@ export default {
                 }
             });
         },
-        getAllPossibleCombinaisons: function() {
-            axios.post("http://127.0.0.1:5000/possible_wordsr",
+        getAllPossibleCombinaisons() {
+            axios.post("http://127.0.0.1:5000/possible_words",
                 {text: this.textToAnalyse}, this.headers).then(response => {
                 if(response.data.success) {
                     this.results = response.data.result;
+                }
+            });
+        },
+        loadCltkLibraries() {
+            let self = this;
+            axios.get("http://127.0.0.1:5000/load_cltk_libraries",
+                {text: this.textToAnalyse}, this.headers).then(response => {
+                if(response.data.success) {
+                    self.items = Object.values(response.data.result);
                 }
             });
         }

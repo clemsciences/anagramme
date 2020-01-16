@@ -12,6 +12,11 @@ tokenize = wt.tokenize
 
 print([c for c in ci.all_corpora])
 
+AVAILABLE_LIBRARIES = {
+    "latin_proper_names_cltk": "Latin proper names",
+    "latin_text_latin_library": "Latin texts"
+}
+
 
 def load_latin_proper_nouns() -> List[str]:
     corpus_path = os.path.join(os.environ.get("HOME"), "cltk_data", "latin", "lexicon", "latin_proper_names_cltk")
