@@ -28,6 +28,12 @@ def find_possible(word: str):
 
 
 def compute_anagrams_dictionary(words: List[str]) -> Dict[str, Set[str]]:
+    """
+    >>> compute_anagrams_dictionary(["bonjour"])
+
+    :param words:
+    :return:
+    """
     anagrams = defaultdict(set)
     for word in words:
         key = ''.join(sorted(word))
@@ -36,6 +42,14 @@ def compute_anagrams_dictionary(words: List[str]) -> Dict[str, Set[str]]:
 
 
 def find_anagrams(word: str, anagram_dictionary: Dict[str, Set[str]]):
+    """
+    >>> d = compute_anagrams_dictionary(["bonjour"])
+    >>> find_anagrams("bjnroou", d)
+
+    :param word:
+    :param anagram_dictionary:
+    :return:
+    """
     key = "".join(sorted(word))
     anagrams = anagram_dictionary[key]
     return [anagram for anagram in anagrams if word != anagram]
