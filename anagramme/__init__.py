@@ -4,7 +4,7 @@ __author__ = ["Clément Besnier <clem@clementbesnier.fr>", ]
 
 anagramme = Blueprint('anagramme', __name__)
 
-from app.routes import *
+from anagramme.routes import *
 
 
 def create_app():
@@ -20,6 +20,6 @@ def create_app():
     def internal_server_error(e):
         return jsonify({"success": False, "message": "Internal error"})
 
-    app.register_blueprint(anagramme)
+    app.register_blueprint(anagramme, url_prefix="/anagramme")
 
     return app

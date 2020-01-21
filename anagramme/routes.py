@@ -2,8 +2,8 @@ from flask import jsonify, request
 
 from . import anagramme
 
-from app.resource_manager import tokenize, AVAILABLE_LIBRARIES, load_latin_proper_nouns, load_latin_library
-from app.anagram import find_possible, compute_anagrams_dictionary, find_anagrams
+from anagramme.resource_manager import tokenize, AVAILABLE_LIBRARIES, load_latin_proper_nouns, load_latin_library
+from anagramme.anagram import find_possible, compute_anagrams_dictionary, find_anagrams
 
 
 @anagramme.route("/tokenize", methods=["POST", "GET"])
