@@ -1,6 +1,9 @@
 # Anagram solver
 
 ## Installation
+
+Used with Python 3.6 and above.
+
 ```bash
 $ pip install -r requirements.txt
 $ cd vue/anagramme
