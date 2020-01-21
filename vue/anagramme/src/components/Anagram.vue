@@ -4,7 +4,7 @@
         <!--
         <v-tooltip right absolute>
            <template v-slot:activator="{ on }">
-               
+
            </template>
            <span>Subject of anagram</span>
         </v-tooltip>
@@ -22,7 +22,7 @@
         </v-row>
         <v-row>
             <v-col cols="2">
-            <v-btn @click="tokenize">Tokenize</v-btn>   
+            <v-btn @click="tokenize">Tokenize</v-btn>
             </v-col>
         </v-row>
         <v-row>
@@ -55,7 +55,7 @@
                 <!--
                 <v-tooltip top absolute>
                     <template v-slot:activator="{ on }">
-                        
+
                     </template>
                     <span>Anagrams</span>
                 </v-tooltip>
@@ -100,7 +100,7 @@ export default {
     },
     methods: {
         tokenize() {
-            axios.post("http://127.0.0.1:5000/tokenize",
+            axios.post("/anagramme/tokenize",
                 {text: this.textToAnalyse}, this.headers).then(response => {
                 if(response.data.success) {
                     this.textToAnalyse = response.data.result;
@@ -108,7 +108,7 @@ export default {
             });
         },
         getAllPossibleCombinaisons() {
-            axios.post("http://127.0.0.1:5000/possible_words",
+            axios.post("/anagramme/possible_words",
                 {text: this.textToAnalyse}, this.headers).then(response => {
                 if(response.data.success) {
                     this.results = response.data.result;
@@ -116,7 +116,7 @@ export default {
             });
         },
         loadCltkLibraries() {
-            axios.get("http://127.0.0.1:5000/load_cltk_libraries",
+            axios.get("/anagramme/load_cltk_libraries",
                 {text: this.textToAnalyse}, this.headers).then(response => {
                 if(response.data.success) {
                     this.items = Object.values(response.data.result);
@@ -135,11 +135,11 @@ export default {
             } else {
                 data.user_input = "";
             }
-            
-            axios.post("http://127.0.0.1:5000/find_anagrams", 
+
+            axios.post("/anagramme/find_anagrams",
             data, this.headers).then(response => {
                 if(response.data.success) {
-                    this.anagramsFound = response.data.result 
+                    this.anagramsFound = response.data.result
                 }
             });
         },
