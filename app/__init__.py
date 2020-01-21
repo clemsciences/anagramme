@@ -2,7 +2,7 @@ from flask import Flask, jsonify, Blueprint
 
 __author__ = ["Clément Besnier <clem@clementbesnier.fr>", ]
 
-main = Blueprint('main', __name__)
+anagramme = Blueprint('anagramme', __name__)
 
 from app.routes import *
 
@@ -20,6 +20,6 @@ def create_app():
     def internal_server_error(e):
         return jsonify({"success": False, "message": "Internal error"})
 
-    app.register_blueprint(main)
+    app.register_blueprint(anagramme)
 
     return app

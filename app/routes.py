@@ -1,12 +1,12 @@
 from flask import jsonify, request
 
-from . import main
+from . import anagramme
 
 from app.resource_manager import tokenize, AVAILABLE_LIBRARIES, load_latin_proper_nouns, load_latin_library
 from app.anagram import find_possible, compute_anagrams_dictionary, find_anagrams
 
 
-@main.route("/tokenize", methods=["POST", "GET"])
+@anagramme.route("/tokenize", methods=["POST", "GET"])
 def get_tokenize():
     text = request.get_json()["text"]
     print(text)
@@ -14,7 +14,7 @@ def get_tokenize():
     return jsonify({"success": True, "result": " ".join(tokenized_text)})
 
 
-@main.route("/possible_words", methods=["POST"])
+@anagramme.route("/possible_words", methods=["POST"])
 def get_possible_words():
     text = request.get_json()["text"]
     words = text.split(" ")
@@ -22,13 +22,13 @@ def get_possible_words():
     return jsonify({"success": True, "result": possible_words})
 
 
-@main.route("/load_cltk_libraries", methods=["GET"])
+@anagramme.route("/load_cltk_libraries", methods=["GET"])
 def load_cltk_libraries():
     print("chargé")
     return jsonify({"success": True, "result": AVAILABLE_LIBRARIES})
 
 
-@main.route("/find_anagrams", methods=["POST"])
+@anagramme.route("/find_anagrams", methods=["POST"])
 def find_anagrams_with_data():
     data = request.get_json()
     library_choice = data["cltk_choice"]
