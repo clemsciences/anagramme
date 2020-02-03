@@ -46,8 +46,11 @@
                     :items="items"
                     label="Available dictionaries"
                     outlined
+                    multiple
                     v-model="chosenLibrary"
-                ></v-select>
+                >
+
+                </v-select>
             </v-col>
         </v-row>
         <v-row>
