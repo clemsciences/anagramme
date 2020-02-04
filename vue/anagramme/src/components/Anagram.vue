@@ -1,15 +1,8 @@
 <template>
     <v-container class="mx-6">
         <h1 class="text-center"><a href="https://en.wikipedia.org/wiki/Anagram">Anagram</a> solver</h1>
-        <!--
-        <v-tooltip right absolute>
-           <template v-slot:activator="{ on }">
 
-           </template>
-           <span>Subject of anagram</span>
-        </v-tooltip>
-        -->
-        <h2 v-on="on">Text to decipher</h2>
+        <h2>Text to decipher</h2>
         <v-row>
             <v-col cols="12">
                 <v-textarea
@@ -55,15 +48,7 @@
         </v-row>
         <v-row>
             <v-col cols="12" v-if="loadFromUserInput">
-                <!--
-                <v-tooltip top absolute>
-                    <template v-slot:activator="{ on }">
-
-                    </template>
-                    <span>Anagrams</span>
-                </v-tooltip>
-                -->
-                <h2 v-on="on">User input</h2>
+                <h2>User input</h2>
                 <v-textarea
                     solo
                     v-model="wordInput"
@@ -85,6 +70,13 @@
 </template>
 <script>
 import axios from 'axios';
+import dotenv from 'dotenv'
+dotenv.config()
+const axiosInstance = axios.create({
+  baseURL: process.env.VUE_APP_SITE_API_URL,
+  timeout: 0,
+});
+
 export default {
     data: () => {
         return {
@@ -103,7 +95,7 @@ export default {
     },
     methods: {
         tokenize() {
-            axios.post("/anagramme/tokenize",
+            axiosInstance.post("/tokenize",
                 {text: this.textToAnalyse}, this.headers).then(response => {
                 if(response.data.success) {
                     this.textToAnalyse = response.data.result;
@@ -111,7 +103,7 @@ export default {
             });
         },
         getAllPossibleCombinaisons() {
-            axios.post("/anagramme/possible_words",
+            axiosInstance.post("/anagramme/possible_words",
                 {text: this.textToAnalyse}, this.headers).then(response => {
                 if(response.data.success) {
                     this.results = response.data.result;
@@ -119,7 +111,7 @@ export default {
             });
         },
         loadCltkLibraries() {
-            axios.get("/anagramme/load_cltk_libraries",
+            axiosInstance.get("/load_cltk_libraries",
                 {text: this.textToAnalyse}, this.headers).then(response => {
                 if(response.data.success) {
                     this.items = Object.values(response.data.result);
@@ -139,7 +131,7 @@ export default {
                 data.user_input = "";
             }
 
-            axios.post("/anagramme/find_anagrams",
+            axiosInstance.post("/find_anagrams",
             data, this.headers).then(response => {
                 if(response.data.success) {
                     this.anagramsFound = response.data.result
