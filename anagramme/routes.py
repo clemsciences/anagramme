@@ -34,6 +34,7 @@ def find_anagrams_with_data():
     library_choice = data["cltk_choice"]
     user_input = data["user_input"]
     text = data["text"]
+    scale = data["scale"]
 
     if text:
         tokenized_text = tokenize(text)
@@ -44,15 +45,22 @@ def find_anagrams_with_data():
         tokenized_user_input = tokenize(user_input)
         loaded_data.extend(tokenized_user_input)
 
-    if library_choice == "Latin proper names":
+    if "Latin proper names" in library_choice:
         loaded_data.extend(load_latin_proper_nouns())
-    elif library_choice == "Latin texts":
+    if "Latin texts" in library_choice:
         loaded_data.extend(load_latin_library())
 
-    anagram_dctionary = compute_anagrams_dictionary(loaded_data)
+    print(len(loaded_data))
+
     result = []
-    for token in tokenized_text:
-        anagrams = find_anagrams(token, anagram_dctionary)
-        if len(anagrams) > 0:
-            result.append({"token": token, "anagrams": " ".join(anagrams)})
+    if scale == "word":
+        anagram_dictionary = compute_anagrams_dictionary(loaded_data)
+
+        for token in tokenized_text:
+            anagrams = find_anagrams(token, anagram_dictionary)
+            if len(anagrams) > 0:
+                result.append({"token": token, "anagrams": " ".join(anagrams)})
+    elif scale == "sentence":
+        pass
+
     return jsonify({"success": True, "result": result})

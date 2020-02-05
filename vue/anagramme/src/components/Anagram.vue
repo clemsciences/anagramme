@@ -57,7 +57,8 @@
                 </v-textarea>
             </v-col>
         </v-row>
-        <v-btn @click="findAnagrams">Compute</v-btn>
+        <v-btn @click="findWordAnagrams">Compute word anagrams</v-btn>
+        <v-btn @click="findSentenceAnagrams">Compute sentence anagrams</v-btn>
         <span hidden><v-btn @click="exportResult">Copy</v-btn></span>
         <v-list id="results" class="my-auto">
             <v-list-item v-for="(result, i) in anagramsFound" :key="i">
@@ -118,8 +119,8 @@ export default {
                 }
             });
         },
-        findAnagrams() {
-            let data = {text: this.textToAnalyse};
+        findWordAnagrams() {
+            let data = {text: this.textToAnalyse, scale: "word"};
             if(this.loadFromCLTK) {
                 data.cltk_choice = this.chosenLibrary;
             } else {
@@ -130,7 +131,23 @@ export default {
             } else {
                 data.user_input = "";
             }
-
+            this.findAnagrams(data);
+        },
+        findSentenceAnagrams() {
+            let data = {text: this.textToAnalyse, scale: "sentence"};
+            if(this.loadFromCLTK) {
+                data.cltk_choice = this.chosenLibrary;
+            } else {
+                data.cltk_choice = "";
+            }
+            if (this.loadFromUserInput) {
+                data.user_input = this.wordInput;
+            } else {
+                data.user_input = "";
+            }
+            this.findAnagrams(data);
+        },
+        findAnagrams(data) {
             axiosInstance.post("/find_anagrams",
             data, this.headers).then(response => {
                 if(response.data.success) {

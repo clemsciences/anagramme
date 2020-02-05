@@ -19,7 +19,12 @@ AVAILABLE_LIBRARIES = {
 
 
 def load_latin_proper_nouns() -> List[str]:
-    corpus_path = os.path.join(os.environ.get("HOME"), "cltk_data", "latin", "lexicon", "latin_proper_names_cltk")
+    print(os.environ.get("USERPROFILE"))
+    if "USERPROFILE" in os.environ:
+        corpus_path = os.path.join(os.environ.get("USERPROFILE"), "cltk_data", "latin", "lexicon",
+                                   "latin_proper_names_cltk")
+    else:
+        corpus_path = os.path.join(os.environ.get("HOME"), "cltk_data", "latin", "lexicon", "latin_proper_names_cltk")
     if not os.path.exists(corpus_path):
         ci.import_corpus("latin_proper_names_cltk")
     with codecs.open(os.path.join(corpus_path, "proper_names"), "r") as f:
