@@ -1,6 +1,7 @@
 
 import itertools
 from collections import defaultdict
+from nltk.collections import Counter
 from typing import List, Dict, Set
 
 __author__ = ["Clément Besnier <clem@clementbesnier.fr>", ]
@@ -41,10 +42,10 @@ def compute_anagrams_dictionary(words: List[str]) -> Dict[str, Set[str]]:
     return anagrams
 
 
-def find_anagrams(word: str, anagram_dictionary: Dict[str, Set[str]]):
+def find_word_anagrams(word: str, anagram_dictionary: Dict[str, Set[str]]):
     """
     >>> d = compute_anagrams_dictionary(["bonjour"])
-    >>> find_anagrams("bjnroou", d)
+    >>> find_word_anagrams("bjnroou", d)
 
     :param word:
     :param anagram_dictionary:
@@ -55,89 +56,32 @@ def find_anagrams(word: str, anagram_dictionary: Dict[str, Set[str]]):
     return [anagram for anagram in anagrams if word != anagram]
 
 
-# region
-def sortstring(sentence):
+def is_valid_subanagram(hashed_sentence, word):
+    count_hashed_sentence = Counter(hashed_sentence)
+    count_word = Counter(hashed_sentence)
+    return all([c in hashed_sentence and count_word[c] <= count_hashed_sentence[c] for c in set(word)])
+
+
+def find_sentence_anagrams(sentence: str, anagram_dictionary: list, temp=None):
     """
-    >>> sortstring("bonjour oui non")
-    '  bijnnnooooruu'
+    >>> d = ["Je", "suis", "Voldemort", "Tom", "Jedusor", "Harry", "Potter", "Hermione", "Granger", "Ron", "Weasley"]
+    >>> find_sentence_anagrams("Tom Elvis Jedusor".lower(), [i.lower() for i in d])
+    ['je', 'suis', 'voldemort']
+
+
+    :param sentence:
+    :param anagram_dictionary:
+    :param temp:
+    :return: sorted result or None
     """
-    return ''.join(sorted(sentence))
-
-
-def simplify(sentences):
-    """
-    >>> simplify(["bonjour oui non", "bonsoir oui"])
-    defaultdict(<class 'list'>, {'bijnnnooooruu': ['bonjour oui non'], 'biinooorsu': ['bonsoir oui']})
-
-    """
-    possible_strings = defaultdict(list)
-    for string in sentences:
-        possible_strings[sortstring(string).strip()].append(string)
-    return possible_strings
-
-
-def countletters(string):
-    """
-    >>> countletters("bonjour oui non")
-    {'a': 0, 'b': 1, 'c': 0, 'd': 0, 'e': 0, 'f': 0, 'g': 0, 'h': 0, 'i': 1, 'j': 1, 'k': 0, 'l': 0, 'm': 0, 'n': 3, 'o': 4, 'p': 0, 'q': 0, 'r': 1, 's': 0, 't': 0, 'u': 2, 'v': 0, 'w': 0, 'x': 0, 'y': 0, 'z': 0}
-    """
-
-    result = {}
-    for i in "abcdefghijklmnopqrstuvwxyz":
-        result[i] = string.count(i)
-    return result
-
-
-def countstring(string):
-    """
-    >>> countstring("bonjour oui non")
-    13
-    """
-
-    a = countletters(string)
-    return sum(a.values())
-
-
-def analyse(database, sentence):
-    """
-    >>> analyse(["bonjour", "oui", "non"], "bonjour oui non")
-
-    """
-    cletters = countstring(sentence)
-    strings = simplify(generate(database, cletters, "abcdefghijklmnopqrstuvwxyz"))
-    data = list()
-    sorted_string = sortstring(sentence).strip()
-    if sorted_string in strings.keys():
-        data = strings[sorted_string]
-    return len(strings.values()), data
-
-
-def generate(database, length, letters, curstring="", curdata=None):
-    """
-
-    # >>> generate(["bonjour oui non", 13, "abcdefghijklmnopqrstuvwxyz"])
-
-    """
-    if curdata is None:
-        curdata = set()
-    if len(curstring.replace(" ", "")) > length:
-        return set()
-    if len(curstring.replace(" ", "")) == length:
-        return curdata.union({curstring})
-    t = countletters(curstring)
-    for i in "abcdefghijklmnopqrstuvwxyz":
-        if t[i] > letters[i]:
-            return set()
-    for i in database:
-        t = countletters(curstring+i)
-        test = 0
-        for j in "abcdefghijklmnopqrstuvwxyz":
-            if t[j] > letters[j]:
-                test = 1
-        if test:
-            continue
-        if sum(t.values()) <= length:
-            curdata = curdata.union(generate(database.difference({i}), length, letters, curstring + " " + i, curdata))
-            database = database.difference({i})
-    return curdata
-# endregion
+    if len(sentence) == 0:
+        return sorted(temp)
+    if temp is None:
+        temp = set()
+    key = "".join(sorted(sentence.replace(" ", "").lower()))
+    for word in anagram_dictionary:
+        if is_valid_subanagram(key, word.lower()):
+            temp.add(word)
+            anagram_dictionary.remove(word)
+            sentence = "".join(Counter(key) - Counter(word))
+            return find_sentence_anagrams(sentence, anagram_dictionary, temp)
