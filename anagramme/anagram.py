@@ -68,6 +68,9 @@ def find_sentence_anagrams(sentence: str, anagram_dictionary: list, temp=None):
     >>> find_sentence_anagrams("Tom Elvis Jedusor".lower(), [i.lower() for i in d])
     ['je', 'suis', 'voldemort']
 
+    >>> d.extend(["ja", "sais"])
+    >>> find_sentence_anagrams("Tom Elvis Jedasor".lower(), [i.lower() for i in d])
+    ['je', 'sais', 'voldemort']
 
     :param sentence:
     :param anagram_dictionary:
@@ -84,4 +87,7 @@ def find_sentence_anagrams(sentence: str, anagram_dictionary: list, temp=None):
             temp.add(word)
             anagram_dictionary.remove(word)
             sentence = "".join(Counter(key) - Counter(word))
-            return find_sentence_anagrams(sentence, anagram_dictionary, temp)
+            res = find_sentence_anagrams(sentence, anagram_dictionary, temp)
+            if res is not None:
+                return res
+    return None
