@@ -34,13 +34,17 @@ def find_possible(word: str):
 def compute_anagrams_dictionary(words: List[str]) -> Dict[str, Set[str]]:
     """
     >>> compute_anagrams_dictionary(["bonjour"])
+    defaultdict(<class 'set'>, {'bjnooru': {'bonjour'}})
+
+    >>> compute_anagrams_dictionary(["bonjour ca va", "coucou", "oui", "non", "oui non"])
+    defaultdict(<class 'set'>, {'aabcjnooruv': {'bonjour ca va'}, 'ccoouu': {'coucou'}, 'iou': {'oui'}, 'nno': {'non'}, 'innoou': {'oui non'}})
 
     :param words:
     :return:
     """
     anagrams = defaultdict(set)
     for word in words:
-        key = ''.join(sorted(word))
+        key = clean_and_sort_string(word)
         anagrams[key].add(word)
     return anagrams
 
@@ -60,9 +64,23 @@ def find_word_anagrams(word: str, anagram_dictionary: Dict[str, Set[str]]):
 
 
 def is_valid_subanagram(hashed_sentence, word):
+    """
+    >>> is_valid_subanagram(Counter("jesuisvoldemort"), Counter("voldemort"))
+    True
+
+    >>> is_valid_subanagram(Counter("jesuisvoldemort"), Counter("tromodlov"))
+    False
+
+    :param hashed_sentence:
+    :param word:
+    :return:
+    """
     count_hashed_sentence = Counter(hashed_sentence)
-    count_word = Counter(hashed_sentence)
-    return all([c in hashed_sentence and count_word[c] <= count_hashed_sentence[c] for c in set(word)])
+    count_word = Counter(word)
+    for c in set(word):
+        if c not in hashed_sentence or count_word[c] > count_hashed_sentence[c]:
+            return False
+    return True
 
 
 def find_sentence_anagrams1(sentence: str, anagram_dictionary: list, temp=None):
@@ -133,58 +151,47 @@ def find_sentence_anagrams2(sentence: str, anagram_dictionary: list, temp=None, 
                 temp = word
             anagram_dictionary.remove(word)
             sentence = "".join(Counter(key) - Counter(word))
-            # res.add(temp)
             res.update(find_sentence_anagrams2(sentence, anagram_dictionary, temp, res))
     return res
 
 
-def sort_string(sentence: str):
+# region
+# https://stackoverflow.com/questions/34220147/efficient-way-to-find-anagrams-of-sentences-from-dictionary/34224914
+def clean_and_sort_string(sentence: str):
     """
-    >>> sort_string("bonjour oui non")
+    >>> clean_and_sort_string("bonjour oui non")
     'bijnnnooooruu'
     """
     return ''.join(sorted(sentence)).strip()
 
 
-def simplify(sentences: List[str]):
+def count_letters(string: str):
     """
-    >>> simplify(["bonjour oui non", "bonsoir oui"])
-    defaultdict(<class 'list'>, {'bijnnnooooruu': ['bonjour oui non'], 'biinooorsu': ['bonsoir oui']})
-
+    >>> count_letters("bonjour oui non")
+    Counter({'o': 4, 'n': 3, 'u': 2, ' ': 2, 'b': 1, 'j': 1, 'r': 1, 'i': 1})
     """
-    possible_strings = defaultdict(list)
-    for string in sentences:
-        possible_strings[sort_string(string)].append(string)
-    return possible_strings
+    return Counter(string.replace(" ", ""))
 
 
-def countletters(string: str):
+def count_string(string):
     """
-    >>> countletters("bonjour oui non")
-    {'a': 0, 'b': 1, 'c': 0, 'd': 0, 'e': 0, 'f': 0, 'g': 0, 'h': 0, 'i': 1, 'j': 1, 'k': 0, 'l': 0, 'm': 0, 'n': 3, 'o': 4, 'p': 0, 'q': 0, 'r': 1, 's': 0, 't': 0, 'u': 2, 'v': 0, 'w': 0, 'x': 0, 'y': 0, 'z': 0}
-    """
-
-    result = {}
-    for i in ascii_lowercase:
-        result[i] = string.count(i)
-    return result
-
-
-def countstring(string):
-    """
-    >>> countstring("bonjour oui non")
+    >>> count_string("bonjour oui non")
     13
     """
-
-    a = countletters(string)
-    return sum(a.values())
+    return len("".join(count_letters(string).elements()))
 
 
 def generate(database, length, letters, curstring="", curdata=None):
     """
     >>> anagram_to_find = "njrboou"
-    >>> generate({"bonjour", "oui", "non"}, countstring(anagram_to_find), countletters(anagram_to_find))
+    >>> generate({"bonjour", "oui", "non"}, count_string(anagram_to_find), count_letters(anagram_to_find))
     {'bonjour'}
+
+    >>> anagram_to_find = "Tom Elvis Jedusor".lower()
+    >>> result = generate({"Harry", "Hermione", "Ron", "je", "suis", "voldomert", "voldemort"}, count_string(anagram_to_find), count_letters(anagram_to_find))
+    >>> sorted([ " ".join(sorted(i.split(" "))) for i in result])
+    ['je suis voldemort', 'je suis voldomert']
+
     """
     if curdata is None:
         curdata = set()
@@ -192,19 +199,13 @@ def generate(database, length, letters, curstring="", curdata=None):
         return set()
     if len(curstring.replace(" ", "")) == length:
         return curdata.union({curstring})
-    t = countletters(curstring)
+    t = count_letters(curstring)
     for i in ascii_lowercase:
         if t[i] > letters[i]:
             return set()
     for i in database:
-        t = countletters(curstring+i)
-        test = 0
-        for j in ascii_lowercase:
-            if t[j] > letters[j]:
-                test = 1
-        if test:
-            continue
-        if sum(t.values()) <= length:
+        t = count_letters(curstring + i)
+        if is_valid_subanagram(letters, t) and sum(t.values()) <= length:
             if curstring:
                 curdata = curdata.union(generate(database.difference({i}),
                                                  length, letters, curstring + " " + i, curdata))
@@ -217,20 +218,24 @@ def generate(database, length, letters, curstring="", curdata=None):
 def find_sentence_anagrams(database: set, sentence: str):
     """
     >>> find_sentence_anagrams({"bonjour", "oui", "non"}, "jourbon")
-    (1, ['bonjour'])
+    {'bonjour'}
 
-    >>> d = ["Je", "suis", "sius", "Voldemort", "Veldomort", "Tom", "Jedusor", "Harry", "Potter", "Hermione", "Granger", "Ron"]
-    >>> find_sentence_anagrams({i.lower() for i in d}, "Tom Elvis Jedusor".lower())
+    >>> d = ["Je", "suis", "sius", "Voldemort", "Veldomort", "Tom", "Jedusor", "Harry", "Hermione", "Ron"]
+    >>> result = find_sentence_anagrams({i.lower() for i in d}, "Tom Elvis Jedusor".lower())
 
-    :param database:
-    :param sentence:
-    :return:
+    >>> sorted([" ".join(sorted(i.split(" "))) for i in result])
+    ['je sius veldomort', 'je sius voldemort', 'je suis veldomort', 'je suis voldemort']
+
+    :param database: list of tokens
+    :param sentence: sentence that you want to find anagrams from
+    :return: list of sentences which are anagrams of the given sentence
     """
-    cletters = countstring(sentence)
-    letters = countletters(sentence)
-    strings = simplify(generate(database, cletters, letters))
-    data = list()
-    sorted_string = sort_string(sentence).strip()
+    cletters = count_string(sentence)
+    letters = count_letters(sentence)
+    strings = compute_anagrams_dictionary(generate(database, cletters, letters))
+    data = []
+    sorted_string = clean_and_sort_string(sentence)
     if sorted_string in strings.keys():
         data = strings[sorted_string]
-    return len(strings.values()), data
+    return data
+# endregion
