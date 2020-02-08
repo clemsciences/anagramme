@@ -226,6 +226,9 @@ def find_sentence_anagrams(database: set, sentence: str):
     >>> sorted([" ".join(sorted(i.split(" "))) for i in result])
     ['je sius veldomort', 'je sius voldemort', 'je suis veldomort', 'je suis voldemort']
 
+    >>> find_sentence_anagrams({i.lower() for i in ['je', 'suis', 'es', 'est', 'sommes', 'nous', 'tu', 'il', 'elle', 'vous', 'ils', 'elles', 'Voldemort', 'Valdejb', 'bcc', 'Hermione', 'Ro', '-ne', 'Hagrid', 'Albus']}, " ".join(['Tom', 'Elvis', 'Jedusor']).lower())
+    {'je suis voldemort'}
+
     :param database: list of tokens
     :param sentence: sentence that you want to find anagrams from
     :return: list of sentences which are anagrams of the given sentence

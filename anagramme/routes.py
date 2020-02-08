@@ -1,9 +1,16 @@
+"""
+
+"""
+
 from flask import jsonify, request
 
 from . import anagramme
 
 from anagramme.resource_manager import tokenize, AVAILABLE_LIBRARIES, load_latin_proper_nouns, load_latin_library
-from anagramme.anagram import find_possible, compute_anagrams_dictionary, find_anagrams
+from anagramme.anagram import find_possible, compute_anagrams_dictionary, find_word_anagrams, find_sentence_anagrams
+
+
+__author__ = ["Clément Besnier <clem@clementbesnier.fr>", ]
 
 
 @anagramme.route("/tokenize", methods=["POST", "GET"])
@@ -57,10 +64,12 @@ def find_anagrams_with_data():
         anagram_dictionary = compute_anagrams_dictionary(loaded_data)
 
         for token in tokenized_text:
-            anagrams = find_anagrams(token, anagram_dictionary)
+            anagrams = find_word_anagrams(token, anagram_dictionary)
             if len(anagrams) > 0:
-                result.append({"token": token, "anagrams": " ".join(anagrams)})
+                result.append({"text": token, "anagrams": " ".join(anagrams)})
     elif scale == "sentence":
-        pass
+        anagrams = find_sentence_anagrams({i.lower() for i in loaded_data}, " ".join(tokenized_text).lower())
+        if len(anagrams) > 0:
+            result.append({"text": " ".join(tokenized_text), "anagrams": " ".join(anagrams)})
 
     return jsonify({"success": True, "result": result})

@@ -62,7 +62,7 @@
         <span hidden><v-btn @click="exportResult">Copy</v-btn></span>
         <v-list id="results" class="my-auto">
             <v-list-item v-for="(result, i) in anagramsFound" :key="i">
-                {{ result.token }} : {{ result.anagrams }}
+                {{ result.text }} : {{ result.anagrams }}
             </v-list-item>
         </v-list>
 
