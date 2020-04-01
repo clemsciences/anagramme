@@ -31,7 +31,8 @@ $ cd vue/anagramme
 $ npm run # or yarn serve
 ```
 
-
+## Example
+![Voldemort anagram](docs/anagram_voldemort.jpg)
 
 
 
