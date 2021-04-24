@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build --dest anagramme-dist",
+    "zip": "tar.exe -a -c -f anagramme.zip anagramme-dist",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
